@@ -1,0 +1,116 @@
+import java.util.Scanner;
+
+public class Calc {
+    public static void main(String[] args) throws Exception {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Введите математическое выражение: ");
+        String string = scan.nextLine();
+        System.out.println(calc(string));                 // Возвращаем результат из метода calc и выводим на экран
+    }
+
+    public static String calc(String input) throws Exception {
+        String[] operators = {"+", "-", "/", "*"};          // Создаем массив, чтобы искать знак в выражении
+        String[] operatorsActions = {"\\+", "-", "/", "\\*"};  // массив содержащий экранированные знаки для разделения выражения на две части
+
+        int actionIndex = -1;
+
+        for (int i = 0; i < operators.length; i++) {
+            if (input.contains(operators[i])) {             //Проверяем сколько знаков содержит строка
+                if (actionIndex != -1) {                    //если больше 1 выбрасываем исключение
+                    throw new Exception("//т.к.формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+                }
+                actionIndex = i;
+            }
+        }
+
+        if (actionIndex == -1) {                           // Если знак не нашелся, выбрасываем исключение
+            throw new Exception("//т.к. строка не является математической операцией");
+        }
+
+        String op = operators[actionIndex]; // "/"
+            //  5/5+
+        int countOperators = 0;
+
+        for (int i = 0; i < input.length(); i++) {        //Проверяем сколько арифметических знаков в строке, если больше 1, выкидываем исключение
+            if (input.charAt(i) == op.charAt(0)) {
+                countOperators++;
+            }
+        }
+
+        if (countOperators > 1) {
+            throw new Exception("//т.к. формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
+        }
+
+        String[] numbers = input.split(operatorsActions[actionIndex]);    //Делим строчку по найденному знаку
+        int num1;
+        String typeNum1;
+        String typeNum2;
+        int num2;
+
+        try {                                                   //Пробуем сконвертировать строку в арабские числа, в случае ошибки ловим исключение и конвертинуем в римские
+            num1 = Integer.parseInt(numbers[0]);
+            typeNum1 = "arabian";
+        } catch (NumberFormatException e) {
+            num1 = convertToArabian(numbers[0]);
+            typeNum1 = "roman";
+        }
+        try {
+            num2 = Integer.parseInt(numbers[1]);
+            typeNum2 = "arabian";
+        } catch (NumberFormatException e) {
+            num2 = convertToArabian(numbers[1]);
+            typeNum2 = "roman";
+        }
+
+        if (!typeNum1.equals(typeNum2)) {
+            throw new Exception("// т.к. используются одновременно разные системы счисления");
+        }
+
+        if (num1 < 1 || num1 > 10 || num2 < 1 || num2 > 10) {
+            throw new Exception("// т.к. числа должны быть в диапазоне от 1 до 10");
+        }
+
+        int result = 0;
+
+        switch (op) {                           //Определяем действие с числами
+            case "+" -> result = num1 + num2;
+            case "-" -> result = num1 - num2;
+            case "*" -> result = num1 * num2;
+            case "/" -> result = num1 / num2;
+        }
+
+        if (typeNum1.equals("roman")) {
+            if (result < 1) {
+                throw new Exception("//т.к. в римской системе нет отрицательных чисел и ноля");
+            }
+            return convertToRoman(result);
+        }
+        return String.valueOf(result);
+    }
+
+    private static int convertToArabian(String roman) throws Exception {     //Конвертор римских чисел в арабские
+        if ("I".equals(roman)) return 1;
+        else if ("II".equals(roman)) return 2;
+        else if ("III".equals(roman)) return 3;
+        else if ("IV".equals(roman)) return 4;
+        else if ("V".equals(roman)) return 5;
+        else if ("VI".equals(roman)) return 6;
+        else if ("VII".equals(roman)) return 7;
+        else if ("VIII".equals(roman)) return 8;
+        else if ("IX".equals(roman)) return 9;
+        else if ("X".equals(roman)) return 10;
+        throw new Exception("//неверный формат записи числа");
+    }
+
+    private static String convertToRoman(int numArabian) {          //Конвертор арабских чисел в римские
+        String[] roman = {"0", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
+                "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII", "XXVIII", "XXIX", "XXX", "XXXI", "XXXII", "XXXIII", "XXXIV", "XXXV", "XXXVI", "XXXVII", "XXXVIII", "XXXIX", "XL",
+                "XLI", "XLII", "XLIII", "XLIV", "XLV", "XLVI", "XLVII", "XLVIII", "XLIX", "L", "LI", "LII", "LIII", "LIV", "LV", "LVI", "LVII", "LVIII", "LIX", "LX",
+                "LXI", "LXII", "LXIII", "LXIV", "LXV", "LXVI", "LXVII", "LXVIII", "LXIX", "LXX",
+                "LXXI", "LXXII", "LXXIII", "LXXIV", "LXXV", "LXXVI", "LXXVII", "LXXVIII", "LXXIX", "LXXX",
+                "LXXXI", "LXXXII", "LXXXIII", "LXXXIV", "LXXXV", "LXXXVI", "LXXXVII", "LXXXVIII", "LXXXIX", "XC",
+                "XCI", "XCII", "XCIII", "XCIV", "XCV", "XCVI", "XCVII", "XCVIII", "XCIX", "C"
+        };
+        return roman[numArabian];
+    }
+}
